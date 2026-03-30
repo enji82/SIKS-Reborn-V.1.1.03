@@ -3,7 +3,7 @@
     <div class="row mb-2">
       <div class="col-sm-12">
         <h5 class="m-0 font-weight-bold">
-          <i class="fas fa-archive text-maroon mr-2"></i>Arsip Presensi Siaba
+          <i class="fas fa-file-archive text-maroon mr-2"></i>Arsip Presensi SIABA
         </h5>
         <hr class="style-sultan-solid">
       </div>
@@ -15,64 +15,87 @@
   <div class="container-fluid">
     <div class="row justify-content-center">
       <div class="col-12">
-        
-        <div class="card-sultan p-3 mb-3">
-          <div class="d-flex flex-wrap justify-content-between align-items-center">
-            
-            <div class="d-flex align-items-center flex-wrap gap-10">
-              
-              <button type="button" id="arsipsiaba_btnHome" class="btn border-tegas shadow-sm bg-white" title="Folder Utama">
-                <i class="fas fa-home text-maroon"></i>
-              </button>
 
-              <button type="button" id="arsipsiaba_btnBack" class="btn border-tegas shadow-sm bg-white" title="Kembali" style="display:none;">
-                <i class="fas fa-level-up-alt text-dark font-weight-bold"></i>
-              </button>
-
-              <button type="button" id="arsipsiaba_btnRefresh" class="btn border-tegas shadow-sm bg-white" title="Refresh Folder Ini">
-                <i class="fas fa-sync-alt text-blue-sultan"></i>
-              </button>
-
-              <div class="divider-vertical"></div>
-
-              <div class="d-flex align-items-center bg-abu-terang px-3 py-2 rounded border-tegas" style="min-width: 200px;">
-                  <i class="fas fa-folder-open text-gold-sultan mr-2"></i>
-                  <span id="arsipsiaba_folderNameLabel" class="font-weight-bold text-dark small text-uppercase">MEMUAT...</span>
+        <div class="card-sultan mb-3">
+          <div class="card-body py-2 px-3 border-left-dark">
+            <div class="d-flex align-items-center justify-content-between cursor-pointer" data-toggle="collapse" data-target="#arsipsiaba_infoCollapse">
+              <div class="d-flex align-items-center text-maroon font-weight-bold">
+                <i class="fas fa-info-circle mr-2"></i> Informasi
               </div>
+              <i class="fas fa-chevron-down text-muted icon-sm"></i>
             </div>
-
-            <div class="mt-2 mt-xl-0 text-muted small font-weight-bold">
-               Total Item: <span id="arsipsiaba_totalItemCount" class="text-maroon">0</span>
+            <div id="arsipsiaba_infoCollapse" class="collapse">
+              <div class="mt-2 pt-2 border-top small text-muted">
+                <ul class="mb-0 pl-3">
+                  <li class="mb-1">Halaman ini berisi rekapitulasi file presensi SIABA bulanan.</li>
+                  <li class="mb-1"><b>Operator Sekolah:</b> Hanya dapat melihat dan mengunduh arsip.</li>
+                  <li><b>Admin:</b> Memiliki akses untuk mengunggah file baru, mengedit, menghapus, dan memantau sekolah yang belum lapor.</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="card-sultan">
-          <div class="card-body p-3">
-              
-              <div id="arsipsiaba_loadingState">
-                  <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 40vh;">
-                      <div class="sultan-loading-container text-center">
-                          <i class="fas fa-spinner fa-spin fa-3x text-maroon mb-3"></i>
-                          <h6 class="text-muted font-weight-bold mt-3" id="arsipsiaba_loadingText">Menghubungkan ke Arsip Server...</h6>
-                      </div>
-                  </div>
-              </div>
+        <div class="card-sultan p-3 mb-3">
+            <div class="d-flex-gap align-items-center flex-wrap">
+                
+                <select id="arsipsiaba_filterTahun" class="form-control form-control-sultan input-auto-width font-weight-bold text-maroon border-maroon"></select>
 
-              <div id="arsipsiaba_tableState" style="display: none;">
-                  <table id="arsipsiaba_tabelUtama" class="table table-bordered table-hover table-premium table-sultan-compact mb-0 w-100 text-nowrap">
-                    <thead class="bg-light">
+                <select id="arsipsiaba_filterBulan" class="form-control form-control-sultan input-auto-width">
+                    <option value="SEMUA">- Semua Bulan -</option>
+                    <option value="Januari">Januari</option><option value="Februari">Februari</option>
+                    <option value="Maret">Maret</option><option value="April">April</option>
+                    <option value="Mei">Mei</option><option value="Juni">Juni</option>
+                    <option value="Juli">Juli</option><option value="Agustus">Agustus</option>
+                    <option value="September">September</option><option value="Oktober">Oktober</option>
+                    <option value="November">November</option><option value="Desember">Desember</option>
+                </select>
+
+                <div class="divider-vertical d-none d-md-block"></div>
+
+                <button type="button" id="arsipsiaba_btnRefresh" class="btn bg-white border shadow-sm text-secondary" title="Segarkan Data dari Server">
+                    <i class="fas fa-sync-alt text-maroon"></i>
+                </button>
+
+                <div class="ml-auto d-none d-md-block"></div>
+
+                <button type="button" id="arsipsiaba_btnDashboard" class="btn btn-info text-white font-weight-bold shadow-sm d-none" title="Pantau Sekolah Belum Lapor">
+                    <i class="fas fa-tachometer-alt mr-1"></i> Dashboard Laporan
+                </button>
+
+                <button type="button" id="arsipsiaba_btnTambah" class="btn btn-maroon text-white font-weight-bold shadow-sm d-none" title="Unggah Arsip Baru">
+                    <i class="fas fa-cloud-upload-alt mr-1"></i> Unggah Arsip
+                </button>
+            </div>
+        </div>
+
+        <div class="card-sultan w-100 overflow-hidden">
+          <div class="card-body p-3 w-100">
+            
+            <div id="arsipsiaba_loadingState">
+                <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 50vh;">
+                    <div class="sultan-loading-container text-center">
+                        <i class="fas fa-spinner fa-spin fa-3x text-maroon mb-3"></i>
+                        <h6 class="text-muted font-weight-bold mt-3" id="arsipsiaba_loadingText">Mengambil Data Arsip...</h6>
+                    </div>
+                </div>
+            </div>
+
+            <div id="arsipsiaba_tableState" style="display: none;">
+                <table id="arsipsiaba_tabelUtama" class="table table-bordered table-hover table-sm table-premium table-sultan-compact text-nowrap mb-0 w-100" style="font-size: 0.85rem;">
+                    <thead class="font-weight-bold text-dark bg-light text-center">
                       <tr>
-                        <th class="text-center align-middle px-2" style="width: 1%; white-space: nowrap;">No</th>
-                        <th class="text-left align-middle px-3" style="width: auto; white-space: nowrap;">Nama File / Folder</th>
-                        <th class="text-center align-middle px-2" style="width: 1%; white-space: nowrap;">Ukuran</th>
-                        <th class="text-center align-middle px-2" style="width: 1%; white-space: nowrap;">Tanggal</th>
-                        <th class="text-center align-middle px-2 col-sticky-right" style="width: 1%; white-space: nowrap;">Aksi</th>
+                        <th class="align-middle py-2" style="width: 1%;">No</th>
+                        <th class="align-middle text-left py-2">Unit Kerja</th>
+                        <th class="align-middle py-2">Periode</th>
+                        <th class="align-middle py-2">Waktu Unggah</th>
+                        <th class="align-middle py-2">User Unggah</th>
+                        <th class="align-middle py-2" style="width: 1%;">Aksi</th>
                       </tr>
                     </thead>
                     <tbody></tbody>
-                  </table>
-              </div>
+                </table>
+            </div>
 
           </div>
         </div>
@@ -82,13 +105,77 @@
   </div>
 </section>
 
+<!-- MODAL UNGGAH & EDIT ARSIP (KHUSUS ADMIN) -->
+<div class="modal fade" id="arsipsiaba_modalForm" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg modal-content-sultan">
+            <div class="modal-header bg-maroon text-white" id="arsipsiaba_headerModalForm">
+                <h5 class="modal-title font-weight-bold" id="arsipsiaba_judulModalForm"><i class="fas fa-cloud-upload-alt mr-2"></i>Unggah Arsip SIABA</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form id="arsipsiaba_formUtama" novalidate>
+                <div class="modal-body bg-light">
+                    <input type="hidden" id="arsipsiaba_inputIdData" name="id">
+                    <input type="hidden" id="arsipsiaba_inputMode" name="mode">
+                    <input type="hidden" id="arsipsiaba_existingUrl">
+
+                    <div class="alert alert-info border-info shadow-sm mb-4 small">
+                        <i class="fas fa-info-circle mr-1"></i> Penamaan file dan penempatan folder di Google Drive akan diatur secara otomatis oleh sistem.
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-sultan small font-weight-bold text-muted text-uppercase">Tahun <span class="text-danger">*</span></label>
+                            <select id="arsipsiaba_inputTahun" class="form-control form-control-sultan" required></select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-sultan small font-weight-bold text-muted text-uppercase">Bulan <span class="text-danger">*</span></label>
+                            <select id="arsipsiaba_inputBulan" class="form-control form-control-sultan" required>
+                                <option value="">- Pilih Bulan -</option>
+                                <option value="Januari">Januari</option><option value="Februari">Februari</option>
+                                <option value="Maret">Maret</option><option value="April">April</option>
+                                <option value="Mei">Mei</option><option value="Juni">Juni</option>
+                                <option value="Juli">Juli</option><option value="Agustus">Agustus</option>
+                                <option value="September">September</option><option value="Oktober">Oktober</option>
+                                <option value="November">November</option><option value="Desember">Desember</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label-sultan small font-weight-bold text-muted text-uppercase">Unit Kerja <span class="text-danger">*</span></label>
+                        <select id="arsipsiaba_inputUnitKerja" class="form-control form-control-sultan font-weight-bold text-dark" required>
+                            <option value="">- Sedang Memuat Daftar Unit... -</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="form-label-sultan small font-weight-bold text-muted text-uppercase">Pilih File PDF <span class="text-danger" id="arsipsiaba_reqFile">*</span></label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input cursor-pointer" id="arsipsiaba_inputFile" accept="application/pdf">
+                            <label class="custom-file-label text-truncate" for="arsipsiaba_inputFile">Pilih file PDF (Maks. 10 MB)</label>
+                        </div>
+                        <small class="text-muted mt-1 d-block" id="arsipsiaba_hintEditFile" style="display:none;">*Kosongkan jika tidak ingin mengubah file PDF yang sudah ada.</small>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-white justify-content-between p-3">
+                    <button type="button" class="btn btn-default shadow-sm font-weight-bold px-4" data-dismiss="modal">Batal</button>
+                    <button type="submit" id="arsipsiaba_btnSimpanForm" class="btn btn-maroon shadow-sm font-weight-bold px-4"><i class="fas fa-upload mr-1"></i> Mulai Unggah</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PREVIEW DOKUMEN -->
 <div class="modal fade" id="arsipsiaba_modalPreview" tabindex="-1" role="dialog" data-backdrop="static">
   <div class="modal-dialog modal-dialog-full" role="document"> 
     <div class="modal-content modal-content-full-height border-0 shadow-lg modal-content-sultan"> 
       
       <div class="modal-header bg-maroon py-2">
         <h6 class="modal-title font-weight-bold text-white">
-            <i class="fas fa-file-alt mr-2"></i> Preview Dokumen Arsip
+            <i class="fas fa-file-pdf mr-2"></i> Preview Arsip PDF
         </h6>
         <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
       </div>
@@ -96,15 +183,14 @@
       <div class="modal-body modal-body-full bg-dark position-relative p-0" style="height: calc(100vh - 55px);">
           <iframe id="arsipsiaba_framePreview" class="iframe-full w-100 h-100 border-0 d-none" src=""></iframe>
           <div id="arsipsiaba_loadingPreviewPDF" class="d-flex h-100 align-items-center justify-content-center text-white-50 position-absolute w-100">
-              <div class="text-center"><i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i><p>Memuat Dokumen...</p></div>
+              <div class="text-center"><i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i><p>Memuat Dokumen dari Google Drive...</p></div>
           </div>
       </div>
       
       <div class="modal-footer justify-content-between bg-white py-2 border-top" style="flex-shrink: 0;">
-          <button type="button" class="btn border-tegas shadow-sm font-weight-bold px-4" data-dismiss="modal">Tutup</button>
-          
+          <button type="button" class="btn border-tegas shadow-sm font-weight-bold px-4" data-dismiss="modal">Tutup Preview</button>
           <a id="arsipsiaba_btnDownloadFinal" href="#" target="_blank" class="btn btn-success shadow-sm font-weight-bold px-4">
-              <i class="fas fa-download mr-2"></i> UNDUH FILE
+              <i class="fas fa-download mr-2"></i> Unduh File Asli
           </a>
       </div>
 
@@ -112,224 +198,629 @@
   </div>
 </div>
 
+<!-- MODAL HAPUS ARSIP (KHUSUS ADMIN) -->
+<div class="modal fade" id="arsipsiaba_modalHapus" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px;">
+        <div class="modal-content border-0 shadow-lg modal-content-sultan">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-trash-alt mr-2"></i>Konfirmasi Hapus</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form id="arsipsiaba_formHapus" novalidate>
+                <div class="modal-body bg-white p-4">
+                    <input type="hidden" id="arsipsiaba_hapusIdData">
+                    
+                    <div class="alert alert-warning text-dark border-warning shadow-sm mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-exclamation-triangle mt-1 mr-3 fa-lg"></i>
+                            <div>
+                                <strong>Peringatan!</strong><br>
+                                Menghapus arsip Presensi SIABA untuk:<br>
+                                <span id="arsipsiaba_hapusViewDetail" class="font-weight-bold text-uppercase text-danger" style="font-size: 1.1em;">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="form-label-sultan small font-weight-bold text-uppercase text-muted">Kode Keamanan <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-light border-right-0"><i class="fas fa-key text-danger"></i></span>
+                            </div>
+                            <input type="password" id="arsipsiaba_hapusInputKode" class="form-control form-control-sultan border-left-0 text-center font-weight-bold letter-spacing-1" placeholder="******" required autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light justify-content-between p-3">
+                    <button type="button" class="btn btn-default border shadow-sm px-4 font-weight-bold" data-dismiss="modal">Batal</button>
+                    <button type="submit" id="arsipsiaba_btnEksekusiHapus" class="btn btn-danger shadow-sm px-4 font-weight-bold"><i class="fas fa-trash mr-1"></i> HAPUS DATA</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DASHBOARD BELUM LAPOR (KHUSUS ADMIN) -->
+<div class="modal fade" id="arsipsiaba_modalDashboard" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg modal-content-sultan">
+            <div class="modal-header bg-info text-white py-3">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard Belum Lapor SIABA</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body bg-light p-4">
+                
+                <div class="d-flex flex-wrap align-items-end mb-4" style="gap: 10px;">
+                    <div>
+                        <label class="small font-weight-bold text-muted mb-1">Tahun:</label>
+                        <select id="arsipsiaba_dashTahun" class="form-control form-control-sultan input-auto-width" style="min-width: 100px;"></select>
+                    </div>
+                    <div>
+                        <label class="small font-weight-bold text-muted mb-1">Bulan:</label>
+                        <select id="arsipsiaba_dashBulan" class="form-control form-control-sultan input-auto-width" style="min-width: 150px;">
+                            <option value="Januari">Januari</option><option value="Februari">Februari</option>
+                            <option value="Maret">Maret</option><option value="April">April</option>
+                            <option value="Mei">Mei</option><option value="Juni">Juni</option>
+                            <option value="Juli">Juli</option><option value="Agustus">Agustus</option>
+                            <option value="September">September</option><option value="Oktober">Oktober</option>
+                            <option value="November">November</option><option value="Desember">Desember</option>
+                        </select>
+                    </div>
+                    <button type="button" id="arsipsiaba_btnTarikDash" class="btn btn-info font-weight-bold shadow-sm">
+                        <i class="fas fa-search mr-1"></i> Tampilkan
+                    </button>
+                </div>
+
+                <div id="arsipsiaba_dashLoading" class="text-center py-4 d-none">
+                    <i class="fas fa-spinner fa-spin fa-2x text-info mb-2"></i><br>
+                    <span class="text-muted font-weight-bold">Menghitung Data...</span>
+                </div>
+
+                <div id="arsipsiaba_dashResult" class="d-none">
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <div class="p-3 bg-white border rounded shadow-sm">
+                                <h4 class="font-weight-bold text-dark mb-0" id="dashVal_total">0</h4>
+                                <span class="small text-muted font-weight-bold text-uppercase">Total Unit</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 bg-white border rounded shadow-sm border-bottom-success">
+                                <h4 class="font-weight-bold text-success mb-0" id="dashVal_sudah">0</h4>
+                                <span class="small text-muted font-weight-bold text-uppercase">Sudah Lapor</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 bg-white border rounded shadow-sm border-bottom-danger">
+                                <h4 class="font-weight-bold text-danger mb-0" id="dashVal_belum">0</h4>
+                                <span class="small text-muted font-weight-bold text-uppercase">Belum Lapor</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2 mt-4">
+                        <h6 class="font-weight-bold text-dark m-0"><i class="fas fa-list-ul mr-2"></i>Daftar Unit Belum Lapor</h6>
+                        <button type="button" id="arsipsiaba_btnCopyWA" class="btn btn-sm btn-outline-success font-weight-bold shadow-sm">
+                            <i class="fab fa-whatsapp mr-1"></i> Copy ke WA
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white border rounded shadow-sm" style="max-height: 250px; overflow-y: auto;">
+                        <ul id="arsipsiaba_listBelum" class="list-group list-group-flush small font-weight-bold text-dark">
+                            <!-- List diisi via JS -->
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-  // =================================================================
-  // ISOLASI VARIABEL GLOBAL (PREFIX ARSIPSIABA_ MUTLAK)
-  // =================================================================
-  var ARSIPSIABA_CURRENT_FOLDER = null; 
-  var ARSIPSIABA_PARENT_FOLDER = null;
-  var ARSIPSIABA_TABEL_INSTANCE = null;
+// ======================================================================
+// ISOLASI VARIABEL GLOBAL & DELEGASI EVENT JQUERY (ES5)
+// ======================================================================
+var ARSIPSIABA_CACHE_DATA = [];
+var ARSIPSIABA_TABEL_INSTANCE = null;
+var ARSIPSIABA_LIST_UNIT = [];
 
-  // =================================================================
-  // 1. INITIALIZATION & VAKSIN SPA EVENT DELEGATION
-  // =================================================================
-  $(document).ready(function() {
-      
-      // VAKSIN EVENT: Menghubungkan fungsi klik dengan tombol (Anti-Memory Leak)
-      $(document).off('click', '#arsipsiaba_btnHome').on('click', '#arsipsiaba_btnHome', arsipsiaba_goHome);
-      $(document).off('click', '#arsipsiaba_btnBack').on('click', '#arsipsiaba_btnBack', arsipsiaba_navigateUp);
-      $(document).off('click', '#arsipsiaba_btnRefresh').on('click', '#arsipsiaba_btnRefresh', arsipsiaba_refreshFolder);
-      
-      // Event Aksi Tabel (Zero-Blink Action)
-      $(document).off('click', '.arsipsiaba-btn-folder').on('click', '.arsipsiaba-btn-folder', function(e) {
-          e.stopPropagation();
-          arsipsiaba_loadFolder($(this).data('id'));
-      });
-      $(document).off('click', '.arsipsiaba-btn-file').on('click', '.arsipsiaba-btn-file', function(e) {
-          e.stopPropagation();
-          arsipsiaba_openPreview($(this).data('id'), $(this).data('mime'));
-      });
+var ARSIPSIABA_USER_AKTIF = "";
+var ARSIPSIABA_IS_ADMIN = false;
 
-      // VAKSIN MEMORI IFRAME (BAB V)
-      $('#arsipsiaba_modalPreview').on('hidden.bs.modal', function () {
-          $('#arsipsiaba_framePreview').attr('src', '').addClass('d-none');
-          $('#arsipsiaba_loadingPreviewPDF').removeClass('d-none');
-      });
+var ARSIPSIABA_LIST_BELUM = []; 
 
-      // SULTAN UX: Baris bisa diklik (Klik Baris = Klik Tombol Pertama)
-      $('#arsipsiaba_tabelUtama tbody').on('click', 'tr', function(e) {
-          if ($(e.target).is('button') || $(e.target).closest('button').length) return;
-          var btn = $(this).find('button.btn-aksi-sultan');
-          if(btn.length > 0) { btn[0].click(); }
-      });
+$(document).ready(function() {
+    ARSIPSIABA_TABEL_INSTANCE = null;
+    $('#arsipsiaba_tableState').hide();
+    $('#arsipsiaba_loadingState').show();
 
-      // Mulai dengan meload Root Folder
-      arsipsiaba_goHome(); 
-  });
+    try {
+        var user = typeof getSesiUser === 'function' ? getSesiUser() : {};
+        ARSIPSIABA_USER_AKTIF = user.nama_lengkap || user.fullname || user.nama || user.username || "User Web";
+        ARSIPSIABA_IS_ADMIN = (user.role || "").toLowerCase().includes("admin");
+    } catch(e) { ARSIPSIABA_IS_ADMIN = false; }
 
-  // =================================================================
-  // 2. LOGIKA LOAD FOLDER (ZERO-BLINK FETCH)
-  // =================================================================
-  function arsipsiaba_loadFolder(folderId) {
-      $('#arsipsiaba_folderNameLabel').html('<i class="fas fa-spinner fa-spin mr-2"></i> MEMUAT...');
-      
-      // VAKSIN BLINK: Jika tabel sudah ada, JANGAN SEMBUNYIKAN WADAHNYA.
-      if ($.fn.DataTable.isDataTable('#arsipsiaba_tabelUtama')) {
-          ARSIPSIABA_TABEL_INSTANCE.clear().draw(false);
-          $('.dataTables_empty').html('<div class="py-5 text-center text-muted font-weight-bold"><i class="fas fa-circle-notch fa-spin fa-2x mb-3 text-maroon"></i><br>Membaca folder dari Server...</div>');
-      } else {
-          // Hanya saat pertama kali load SPA, tunjukkan loading state besar
-          $('#arsipsiaba_tableState').hide();
-          $('#arsipsiaba_loadingState').show();
-      }
-      
-      google.script.run
-        .withSuccessHandler(arsipsiaba_renderArsipTable)
-        .withFailureHandler(function(err) {
-           if ($.fn.DataTable.isDataTable('#arsipsiaba_tabelUtama')) {
-               $('.dataTables_empty').html(`<div class="py-5 text-center text-danger font-weight-bold"><i class="fas fa-wifi fa-2x mb-3"></i><br>Gagal memuat folder:<br>${arsipsiaba_escapeHtml(err.message)}</div>`);
-           } else {
-               $('#arsipsiaba_loadingText').html(`<span class="text-danger"><i class="fas fa-wifi mb-2"></i><br>Koneksi Terputus: ${arsipsiaba_escapeHtml(err.message)}</span>`);
-           }
-           $('#arsipsiaba_folderNameLabel').text('ERROR');
+    // Tampilkan Tombol Admin
+    if (ARSIPSIABA_IS_ADMIN) {
+        $('#arsipsiaba_btnDashboard, #arsipsiaba_btnTambah').removeClass('d-none');
+    }
+
+    arsipsiaba_initFilterTahun();
+
+    // VAKSIN DELEGASI EVENT JQUERY
+    $(document).off('click', '#arsipsiaba_btnRefresh').on('click', '#arsipsiaba_btnRefresh', arsipsiaba_tarikDataServer);
+    $(document).off('change', '#arsipsiaba_filterTahun, #arsipsiaba_filterBulan').on('change', '#arsipsiaba_filterTahun, #arsipsiaba_filterBulan', arsipsiaba_terapkanFilterLokal);
+    
+    // Khusus Admin
+    $(document).off('click', '#arsipsiaba_btnTambah').on('click', '#arsipsiaba_btnTambah', arsipsiaba_bukaModalTambah);
+    $(document).off('submit', '#arsipsiaba_formUtama').on('submit', '#arsipsiaba_formUtama', arsipsiaba_submitUpload);
+    $(document).off('submit', '#arsipsiaba_formHapus').on('submit', '#arsipsiaba_formHapus', arsipsiaba_submitHapus);
+    $(document).off('click', '#arsipsiaba_btnDashboard').on('click', '#arsipsiaba_btnDashboard', arsipsiaba_bukaModalDashboard);
+    $(document).off('click', '#arsipsiaba_btnTarikDash').on('click', '#arsipsiaba_btnTarikDash', arsipsiaba_tarikDashboardServer);
+    $(document).off('click', '#arsipsiaba_btnCopyWA').on('click', '#arsipsiaba_btnCopyWA', arsipsiaba_copyKeWA);
+
+    // Event File Input Nama Berubah
+    $('.custom-file-input').on('change', function() {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).siblings('.custom-file-label').addClass('selected').html(fileName || "Pilih file PDF (Maks. 10 MB)");
+    });
+
+    // Vaksin Reset Iframe Modal Preview
+    $('#arsipsiaba_modalPreview').on('hidden.bs.modal', function () {
+        $('#arsipsiaba_framePreview').attr('src', '').addClass('d-none');
+        $('#arsipsiaba_loadingPreviewPDF').removeClass('d-none');
+    });
+
+    arsipsiaba_tarikDataServer();
+    if (ARSIPSIABA_IS_ADMIN) arsipsiaba_tarikReferensiUnit();
+});
+
+// =================================================================
+// INIT TANGGAL & TAHUN
+// =================================================================
+function arsipsiaba_initFilterTahun() {
+    var d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); 
+    var curTahun = d.getFullYear();
+    var curBulanIdx = d.getMonth(); 
+    var arrBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    var curBulanStr = arrBulan[curBulanIdx];
+
+    var realTahun = new Date().getFullYear();
+    var h = '<option value="SEMUA">- Semua Tahun -</option>';
+    var hModal = '';
+    for(var i = realTahun + 1; i >= 2022; i--) {
+        var sel = (i === curTahun) ? ' selected' : '';
+        h += '<option value="' + i + '"' + sel + '>' + i + '</option>';
+        hModal += '<option value="' + i + '"' + sel + '>' + i + '</option>';
+    }
+    
+    $('#arsipsiaba_filterTahun').html(h);
+    $('#arsipsiaba_inputTahun, #arsipsiaba_dashTahun').html(hModal);
+    
+    $('#arsipsiaba_filterBulan').val(curBulanStr);
+    $('#arsipsiaba_inputBulan, #arsipsiaba_dashBulan').val(curBulanStr);
+}
+
+// =================================================================
+// FETCH REFERENSI UNIT (KHUSUS ADMIN)
+// =================================================================
+function arsipsiaba_tarikReferensiUnit() {
+    google.script.run.withSuccessHandler(function(res) {
+        if(res.data) {
+            ARSIPSIABA_LIST_UNIT = res.data;
+            var h = '<option value="">- Pilih Unit Kerja -</option>';
+            res.data.forEach(function(u) { h += '<option value="' + u + '">' + u + '</option>'; });
+            $('#arsipsiaba_inputUnitKerja').html(h);
+        }
+    }).arsipsiaba_getDaftarUnit();
+}
+
+// =================================================================
+// FETCH ARSIP UTAMA
+// =================================================================
+function arsipsiaba_tarikDataServer() {
+    var btn = $('#arsipsiaba_btnRefresh');
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin text-maroon"></i>');
+
+    if (!$.fn.DataTable.isDataTable('#arsipsiaba_tabelUtama')) {
+        $('#arsipsiaba_tableState').hide();
+        $('#arsipsiaba_loadingState').show();
+    }
+
+    google.script.run.withSuccessHandler(function(res) {
+        btn.prop('disabled', false).html('<i class="fas fa-sync-alt text-maroon"></i>');
+        
+        if (res.error) {
+            $('#arsipsiaba_loadingText').html('<span class="text-danger"><i class="fas fa-exclamation-triangle mb-2"></i><br>' + arsipsiaba_escapeHtml(res.error) + '</span>');
+            return;
+        }
+
+        ARSIPSIABA_CACHE_DATA = res.data || [];
+        
+        if (!$.fn.DataTable.isDataTable('#arsipsiaba_tabelUtama')) { arsipsiaba_initDataTables(); }
+        arsipsiaba_terapkanFilterLokal();
+
+        $('#arsipsiaba_loadingState').hide();
+        $('#arsipsiaba_tableState').show();
+        if(ARSIPSIABA_TABEL_INSTANCE) { setTimeout(function() { ARSIPSIABA_TABEL_INSTANCE.columns.adjust(); }, 150); }
+
+    }).withFailureHandler(function(e) {
+        btn.prop('disabled', false).html('<i class="fas fa-sync-alt text-maroon"></i>');
+        $('#arsipsiaba_loadingText').html('<span class="text-danger"><i class="fas fa-wifi mb-2"></i><br>Koneksi Server Terputus.</span>');
+    }).arsipsiaba_getDataArsip("", ""); 
+}
+
+// =================================================================
+// INIT DATATABLES
+// =================================================================
+function arsipsiaba_initDataTables() {
+    ARSIPSIABA_TABEL_INSTANCE = $('#arsipsiaba_tabelUtama').DataTable({
+        "destroy": true, "ordering": false, "pageLength": 10, "autoWidth": false, "deferRender": true, 
+        "dom": "<'row mb-2'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+               "<'row'<'col-sm-12'<'table-responsive sultan-scroll'tr>>>" +
+               "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+        "columnDefs": [ 
+            { "targets": 0, "width": "1%", "className": "text-center align-middle text-dark px-2" }, 
+            { "targets": 1, "width": "auto", "className": "text-left align-middle font-weight-bold text-dark px-3" },
+            { "targets": [2,3,4,5], "width": "1%", "className": "text-center align-middle text-nowrap px-2" }
+        ],
+        "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Indonesian.json", "emptyTable": "Tidak ada data arsip SIABA." }
+    });
+
+    // VAKSIN PENOMORAN OTOMATIS (REVISI BUG OFFSET)
+    ARSIPSIABA_TABEL_INSTANCE.on('draw.dt', function () {
+        var info = ARSIPSIABA_TABEL_INSTANCE.page.info();
+        ARSIPSIABA_TABEL_INSTANCE.column(0, { search: 'applied', order: 'applied', page: 'current' }).nodes().each(function (cell, i) {
+            cell.innerHTML = i + 1 + info.start;
+        });
+    });
+}
+
+function arsipsiaba_terapkanFilterLokal() {
+    if (!ARSIPSIABA_TABEL_INSTANCE) return;
+
+    var fTahun = $('#arsipsiaba_filterTahun').val() || "SEMUA";
+    var fBulan = $('#arsipsiaba_filterBulan').val() || "SEMUA";
+    
+    var hasil = ARSIPSIABA_CACHE_DATA.filter(function(row) {
+        var rTahun = String(row.tahun || "").trim(); 
+        var rBulan = String(row.bulan || "").trim(); 
+
+        if (fTahun !== "SEMUA" && fTahun !== "" && rTahun !== fTahun) return false;
+        if (fBulan !== "SEMUA" && fBulan !== "" && rBulan !== fBulan) return false;
+
+        return true;
+    });
+    
+    arsipsiaba_renderTabel(hasil);
+}
+
+function arsipsiaba_renderTabel(dataRows) {
+    var dtArray = [];
+
+    dataRows.forEach(function(row) {
+        var arrRow = [];
+        
+        arrRow.push(""); 
+        arrRow.push(arsipsiaba_escapeHtml(row.unitKerja || "-")); 
+        
+        var periode = '<span class="badge badge-info shadow-sm px-2 py-1">' + arsipsiaba_escapeHtml(row.bulan) + ' ' + arsipsiaba_escapeHtml(row.tahun) + '</span>';
+        arrRow.push(periode);
+        
+        arrRow.push('<span class="small font-weight-bold text-muted">' + arsipsiaba_escapeHtml(row.tglUnggah) + '</span>');
+        arrRow.push('<span class="small font-weight-bold text-muted">' + arsipsiaba_escapeHtml(row.userUnggah) + '</span>');
+
+        var fileIdMatch = String(row.fileUrl || "").match(/[-\w]{25,}/);
+        var fileId = fileIdMatch ? fileIdMatch[0] : "";
+        
+        var btnLihat = '<button type="button" class="btn btn-sm btn-success font-weight-bold shadow-sm px-3" onclick="arsipsiaba_bukaPreview(\'' + fileId + '\')" title="Lihat Dokumen"><i class="fas fa-eye mr-1"></i> Lihat</button>';
+
+        if (ARSIPSIABA_IS_ADMIN) {
+            // VAKSIN ENKRIPSI: Encode data ke base64 mutlak mencegah SyntaxError
+            var rowDataStr = btoa(JSON.stringify(row));
+            
+            var btnEdit = ' <button type="button" class="btn btn-sm btn-warning font-weight-bold shadow-sm text-dark px-3" onclick="arsipsiaba_bukaModalEdit(\'' + rowDataStr + '\')" title="Edit Arsip"><i class="fas fa-pencil-alt mr-1"></i> Edit</button>';
+            var btnHapus = ' <button type="button" class="btn btn-sm btn-danger font-weight-bold shadow-sm px-3" onclick="arsipsiaba_bukaModalHapus(\'' + rowDataStr + '\')" title="Hapus Arsip"><i class="fas fa-trash-alt"></i></button>';
+            
+            arrRow.push('<div class="d-flex flex-nowrap justify-content-center" style="gap:5px;">' + btnLihat + btnEdit + btnHapus + '</div>');
+        } else {
+            arrRow.push('<div class="d-flex flex-nowrap justify-content-center" style="gap:5px;">' + btnLihat + '</div>');
+        }
+
+        dtArray.push(arrRow);
+    });
+
+    ARSIPSIABA_TABEL_INSTANCE.clear().rows.add(dtArray).draw(false);
+}
+
+// =================================================================
+// IFRAME PREVIEW MODAL
+// =================================================================
+function arsipsiaba_bukaPreview(fileId) {
+    if (!fileId) {
+        Sultan.alert('error', 'Gagal', 'Link file tidak valid atau file belum diunggah dengan benar.');
+        return;
+    }
+    
+    var previewUrl = "https://drive.google.com/file/d/" + fileId + "/preview";
+    var downloadUrl = "https://drive.google.com/uc?export=download&id=" + fileId;
+
+    $('#arsipsiaba_loadingPreviewPDF').removeClass('d-none');
+    $('#arsipsiaba_framePreview').addClass('d-none').attr('src', previewUrl);
+    $('#arsipsiaba_btnDownloadFinal').attr('href', downloadUrl);
+
+    $('#arsipsiaba_modalPreview').modal('show');
+
+    $('#arsipsiaba_framePreview').off('load').on('load', function() {
+        $('#arsipsiaba_loadingPreviewPDF').addClass('d-none');
+        $(this).removeClass('d-none');
+    });
+
+    setTimeout(function() {
+        $('#arsipsiaba_loadingPreviewPDF').addClass('d-none');
+        $('#arsipsiaba_framePreview').removeClass('d-none');
+    }, 3000);
+}
+
+// =================================================================
+// FUNGSI MODAL UNGGAH & EDIT (KHUSUS ADMIN)
+// =================================================================
+function arsipsiaba_bukaModalTambah() {
+    $('#arsipsiaba_formUtama')[0].reset();
+    $('#arsipsiaba_formUtama').removeClass('was-validated');
+    $('#arsipsiaba_inputMode').val('insert');
+    $('#arsipsiaba_inputIdData').val('');
+    $('#arsipsiaba_existingUrl').val('');
+    
+    $('#arsipsiaba_headerModalForm').removeClass('bg-warning').addClass('bg-maroon');
+    $('#arsipsiaba_judulModalForm').removeClass('text-dark').addClass('text-white').html('<i class="fas fa-cloud-upload-alt mr-2"></i>Unggah Arsip Baru');
+    $('#arsipsiaba_btnSimpanForm').removeClass('btn-warning text-dark').addClass('btn-maroon text-white').html('<i class="fas fa-upload mr-1"></i> Mulai Unggah');
+    
+    $('#arsipsiaba_inputTahun, #arsipsiaba_inputBulan, #arsipsiaba_inputUnitKerja').prop('disabled', false);
+    $('#arsipsiaba_inputFile').prop('required', true);
+    $('#arsipsiaba_reqFile').show();
+    $('#arsipsiaba_hintEditFile').hide();
+    $('.custom-file-label').html("Pilih file PDF (Maks. 10 MB)");
+
+    $('#arsipsiaba_modalForm').modal('show');
+}
+
+function arsipsiaba_bukaModalEdit(b64Data) {
+    var row = JSON.parse(atob(b64Data));
+    $('#arsipsiaba_formUtama')[0].reset();
+    $('#arsipsiaba_formUtama').removeClass('was-validated');
+    
+    $('#arsipsiaba_inputMode').val('edit');
+    $('#arsipsiaba_inputIdData').val(row.rowId);
+    $('#arsipsiaba_existingUrl').val(row.fileUrl);
+    
+    $('#arsipsiaba_headerModalForm').removeClass('bg-maroon').addClass('bg-warning');
+    $('#arsipsiaba_judulModalForm').removeClass('text-white').addClass('text-dark').html('<i class="fas fa-edit mr-2"></i>Edit File Arsip');
+    $('#arsipsiaba_btnSimpanForm').removeClass('btn-maroon text-white').addClass('btn-warning text-dark').html('<i class="fas fa-save mr-1"></i> Simpan Perubahan');
+    
+    $('#arsipsiaba_inputTahun').val(row.tahun).prop('disabled', true);
+    $('#arsipsiaba_inputBulan').val(row.bulan).prop('disabled', true);
+    
+    if($('#arsipsiaba_inputUnitKerja option[value="' + row.unitKerja + '"]').length === 0) {
+        $('#arsipsiaba_inputUnitKerja').append('<option value="'+row.unitKerja+'">'+row.unitKerja+'</option>');
+    }
+    $('#arsipsiaba_inputUnitKerja').val(row.unitKerja).prop('disabled', true);
+
+    $('#arsipsiaba_inputFile').prop('required', false);
+    $('#arsipsiaba_reqFile').hide();
+    $('#arsipsiaba_hintEditFile').show();
+    $('.custom-file-label').html("File sudah ada. Ganti?");
+
+    $('#arsipsiaba_modalForm').modal('show');
+}
+
+function arsipsiaba_submitUpload(e) {
+    e.preventDefault();
+    var formAktif = $(this); // VAKSIN GHOST DOM
+    
+    if (!formAktif[0].checkValidity()) {
+        formAktif.addClass('was-validated');
+        Sultan.alert('warning', 'Perhatian', 'Harap lengkapi isian dan pastikan Anda memilih file PDF!');
+        return;
+    }
+
+    var fileInput = formAktif.find('input[type="file"]')[0];
+    var file = fileInput ? fileInput.files[0] : null;
+    var mode = formAktif.find('#arsipsiaba_inputMode').val();
+
+    if (mode === 'insert' && !file) {
+        Sultan.alert('warning', 'File Kosong', 'Silakan pilih file PDF terlebih dahulu.');
+        return;
+    }
+
+    if (file && file.size > 10485760) {
+        Sultan.alert('error', 'Ukuran Terlalu Besar', 'File maksimal 10 MB. Silakan kompres PDF Anda terlebih dahulu.');
+        return;
+    }
+
+    var btn = formAktif.find('button[type="submit"]'); 
+    var txt = btn.html();
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Mengonversi & Mengunggah... (Mohon Jangan Tutup Layar)');
+
+    var payload = {
+        mode: mode,
+        rowId: formAktif.find('#arsipsiaba_inputIdData').val(),
+        existingUrl: formAktif.find('#arsipsiaba_existingUrl').val(),
+        tahun: formAktif.find('#arsipsiaba_inputTahun').val(),
+        bulan: formAktif.find('#arsipsiaba_inputBulan').val(),
+        unitKerja: formAktif.find('#arsipsiaba_inputUnitKerja').val(),
+        userLogin: ARSIPSIABA_USER_AKTIF,
+        fileData: null
+    };
+
+    var executeBackend = function(finalPayload) {
+        google.script.run
+            .withSuccessHandler(function(res) {
+                btn.prop('disabled', false).html(txt);
+                if(res.error) {
+                    Sultan.alert('error', 'Gagal', res.error);
+                } else {
+                    formAktif.closest('.modal').modal('hide');
+                    formAktif[0].reset();
+                    formAktif.removeClass('was-validated');
+                    formAktif.find('.custom-file-label').html("Pilih file PDF (Maks. 10 MB)");
+
+                    Sultan.notif.sukses('Arsip SIABA berhasil ' + (mode==='insert' ? 'diunggah' : 'diperbarui') + '.');
+                    arsipsiaba_tarikDataServer(); 
+                }
+            })
+            .withFailureHandler(function(err) {
+                btn.prop('disabled', false).html(txt);
+                Sultan.alert('error', 'Error Server', err.message);
+            })
+            .arsipsiaba_simpanArsip(finalPayload);
+    };
+
+    if (file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var dataUrl = e.target.result;
+            var base64Data = dataUrl.split(',')[1];
+            payload.fileData = {
+                mimeType: file.type,
+                data: base64Data
+            };
+            executeBackend(payload);
+        };
+        reader.readAsDataURL(file);
+    } else {
+        executeBackend(payload);
+    }
+}
+
+// =================================================================
+// FUNGSI HAPUS (KHUSUS ADMIN)
+// =================================================================
+function arsipsiaba_bukaModalHapus(b64Data) {
+    var row = JSON.parse(atob(b64Data));
+    $('#arsipsiaba_hapusIdData').val(row.rowId);
+    $('#arsipsiaba_hapusViewDetail').html(arsipsiaba_escapeHtml(row.unitKerja) + '<br><small class="text-dark">' + arsipsiaba_escapeHtml(row.bulan) + ' ' + arsipsiaba_escapeHtml(row.tahun) + '</small>');
+    $('#arsipsiaba_hapusInputKode').val('');
+    $('#arsipsiaba_formHapus').removeClass('was-validated');
+    $('#arsipsiaba_modalHapus').modal('show');
+}
+
+function arsipsiaba_submitHapus(e) {
+    e.preventDefault();
+    var formHapus = $(this);
+    if (!formHapus[0].checkValidity()) {
+        formHapus.addClass('was-validated');
+        return;
+    }
+
+    var id = $('#arsipsiaba_hapusIdData').val();
+    var kode = $('#arsipsiaba_hapusInputKode').val();
+    
+    // Kode Keamanan: YYYYMMDD hari ini
+    var today = new Date(); var dd = String(today.getDate()).padStart(2, '0'); var mm = String(today.getMonth() + 1).padStart(2, '0'); var yyyy = today.getFullYear();
+    var correctCode = yyyy + mm + dd;
+
+    if (kode !== correctCode) { Sultan.alert('error', 'Gagal', 'Kode Keamanan salah!'); return; }
+
+    var btn = $('#arsipsiaba_btnEksekusiHapus'); var oldText = btn.html();
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Menghapus...');
+
+    google.script.run
+        .withSuccessHandler(function(res){
+            btn.prop('disabled', false).html(oldText);
+            if(res.error) {
+                Sultan.alert('error', 'Gagal Hapus', res.error);
+            } else {
+                $('#arsipsiaba_modalHapus').modal('hide');
+                Sultan.notif.sukses('Data berhasil dipindah ke arsip sampah.');
+                arsipsiaba_tarikDataServer(); 
+            }
         })
-        .getSiabaArsipData(folderId); // Memanggil Backend Baru
-  }
+        .withFailureHandler(function(err){ 
+            btn.prop('disabled', false).html(oldText); 
+            Sultan.alert('error', 'Error Server', err.message); 
+        })
+        .arsipsiaba_hapusArsip(id, ARSIPSIABA_USER_AKTIF);
+}
 
-  // =================================================================
-  // 3. RENDER ENGINE: PURE ARRAY PUSH (ANTI-GLITZ)
-  // =================================================================
-  function arsipsiaba_renderArsipTable(data) {
-      if (data.error) {
-          if ($.fn.DataTable.isDataTable('#arsipsiaba_tabelUtama')) {
-              $('.dataTables_empty').html(`<div class="py-5 text-center text-danger font-weight-bold"><i class="fas fa-exclamation-triangle fa-2x mb-3"></i><br>${arsipsiaba_escapeHtml(data.error)}</div>`);
-          } else {
-              $('#arsipsiaba_loadingText').html(`<span class="text-danger"><i class="fas fa-exclamation-triangle mb-2"></i><br>${arsipsiaba_escapeHtml(data.error)}</span>`);
-          }
-          $('#arsipsiaba_folderNameLabel').text('ERROR AKSES');
-          return;
-      }
+// =================================================================
+// FUNGSI DASHBOARD (BELUM LAPOR)
+// =================================================================
+function arsipsiaba_bukaModalDashboard() {
+    $('#arsipsiaba_dashResult').addClass('d-none');
+    $('#arsipsiaba_dashLoading').addClass('d-none');
+    $('#arsipsiaba_modalDashboard').modal('show');
+}
 
-      ARSIPSIABA_CURRENT_FOLDER = data.currentId;
-      ARSIPSIABA_PARENT_FOLDER = data.parentId;
-      
-      $('#arsipsiaba_folderNameLabel').text(data.currentName);
-      $('#arsipsiaba_totalItemCount').text(data.items ? data.items.length : 0);
-      
-      if (data.isRoot) $('#arsipsiaba_btnBack').hide();
-      else $('#arsipsiaba_btnBack').show();
+function arsipsiaba_tarikDashboardServer() {
+    var thn = $('#arsipsiaba_dashTahun').val();
+    var bln = $('#arsipsiaba_dashBulan').val();
+    
+    $('#arsipsiaba_dashResult').addClass('d-none');
+    $('#arsipsiaba_dashLoading').removeClass('d-none');
+    $('#arsipsiaba_btnTarikDash').prop('disabled', true);
 
-      var items = data.items || [];
-      var dtArray = [];
+    google.script.run.withSuccessHandler(function(res) {
+        $('#arsipsiaba_dashLoading').addClass('d-none');
+        $('#arsipsiaba_btnTarikDash').prop('disabled', false);
 
-      items.forEach(function(item, i) {
-          var arrRow = [];
-          var iconHtml = '';
-          var btnAction = '';
-          var nameHtml = '';
+        if (res.error) {
+            Sultan.alert('error', 'Gagal Memuat Dashboard', res.error);
+            return;
+        }
 
-          var safeName = arsipsiaba_escapeHtml(item.name);
+        var d = res.data;
+        $('#dashVal_total').text(d.total);
+        $('#dashVal_sudah').text(d.sudah);
+        $('#dashVal_belum').text(d.belum);
 
-          // --- LOGIKA FOLDER ---
-          if (item.type === 'folder') {
-              iconHtml = '<i class="fas fa-folder text-gold-sultan mr-2 fa-lg"></i>';
-              nameHtml = `<span class="font-weight-bold text-dark text-nowrap">${safeName}</span>`;
-              btnAction = `<button type="button" class="btn btn-sm btn-outline-primary shadow-sm px-3 font-weight-bold btn-aksi-sultan arsipsiaba-btn-folder" data-id="${item.id}">Buka Folder</button>`;
-          } 
-          // --- LOGIKA FILE ---
-          else {
-              var mime = item.mimeType;
-              if (mime.includes('pdf')) iconHtml = '<i class="fas fa-file-pdf text-danger mr-2 fa-lg"></i>';
-              else if (mime.includes('image')) iconHtml = '<i class="fas fa-file-image text-purple-sultan mr-2 fa-lg"></i>';
-              else if (mime.includes('spreadsheet') || mime.includes('excel')) iconHtml = '<i class="fas fa-file-excel text-green-sultan mr-2 fa-lg"></i>';
-              else if (mime.includes('document') || mime.includes('word')) iconHtml = '<i class="fas fa-file-word text-blue-sultan mr-2 fa-lg"></i>';
-              else iconHtml = '<i class="fas fa-file text-secondary mr-2 fa-lg"></i>';
+        ARSIPSIABA_LIST_BELUM = d.listBelum || [];
+        var ul = $('#arsipsiaba_listBelum').empty();
+        
+        if (ARSIPSIABA_LIST_BELUM.length === 0) {
+            ul.html('<li class="list-group-item text-center text-success py-3"><i class="fas fa-check-circle fa-2x mb-2"></i><br>Semua Unit Sudah Mengunggah SIABA!</li>');
+            $('#arsipsiaba_btnCopyWA').prop('disabled', true);
+        } else {
+            $('#arsipsiaba_btnCopyWA').prop('disabled', false);
+            ARSIPSIABA_LIST_BELUM.forEach(function(u, idx) {
+                ul.append('<li class="list-group-item py-2"><span class="badge badge-danger mr-2">' + (idx+1) + '</span> ' + u + '</li>');
+            });
+        }
 
-              nameHtml = `<span class="text-dark text-nowrap">${safeName}</span>`;
-              btnAction = `<div class="d-flex flex-nowrap justify-content-center"><button type="button" class="btn btn-sm btn-success shadow-sm px-3 font-weight-bold btn-aksi-sultan arsipsiaba-btn-file" data-id="${item.id}" data-mime="${item.mimeType}"><i class="fas fa-eye mr-1"></i> Lihat & Unduh</button></div>`;
-          }
+        $('#arsipsiaba_dashResult').removeClass('d-none');
 
-          arrRow.push(i + 1);
-          arrRow.push(`<div class="d-flex align-items-center">${iconHtml} ${nameHtml}</div>`);
-          arrRow.push(`<span class="small font-weight-bold text-muted">${item.size}</span>`);
-          arrRow.push(`<span class="small font-weight-bold text-muted">${item.date}</span>`);
-          arrRow.push(btnAction);
+    }).withFailureHandler(function(err) {
+        $('#arsipsiaba_dashLoading').addClass('d-none');
+        $('#arsipsiaba_btnTarikDash').prop('disabled', false);
+        Sultan.alert('error', 'Koneksi Terputus', err.message);
+    }).arsipsiaba_getDashboardBelumLapor(thn, bln);
+}
 
-          dtArray.push(arrRow);
-      });
+function arsipsiaba_copyKeWA() {
+    var thn = $('#arsipsiaba_dashTahun').val();
+    var bln = $('#arsipsiaba_dashBulan').val();
+    
+    if (ARSIPSIABA_LIST_BELUM.length === 0) return;
 
-      // VAKSIN INISIASI: Buat tabel hanya 1x seumur hidup
-      if (!$.fn.DataTable.isDataTable('#arsipsiaba_tabelUtama')) {
-          ARSIPSIABA_TABEL_INSTANCE = $('#arsipsiaba_tabelUtama').DataTable({
-              "data": dtArray,
-              "destroy": true,
-              "ordering": false, 
-              "pageLength": 10, 
-              "autoWidth": false, // VAKSIN: Matikan autowidth js, biarkan CSS tag <th> bekerja
-              "deferRender": true, 
-              "dom": "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                     "<'row'<'col-sm-12'<'table-responsive sultan-scroll'tr>>>" +
-                     "<'row mt-3'<'col-sm-12 col-md-5 small text-muted'i><'col-sm-12 col-md-7'p>>",
-              "language": { 
-                  "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Indonesian.json", 
-                  "search": "", "searchPlaceholder": "Cari Nama File/Folder...",
-                  "emptyTable": '<div class="py-5 text-center text-muted"><i class="fas fa-folder-open fa-3x mb-3 opacity-50"></i><br>Folder arsip ini kosong.</div>' 
-              },
-              "columnDefs": [
-                  { "targets": 0, "className": "text-center align-middle px-2" },
-                  { "targets": 1, "className": "text-left align-middle px-3" },
-                  { "targets": [2,3,4], "className": "text-center align-middle px-2" }
-              ]
-          });
-          
-          // Buka blokir tirai secara instan
-          $('#arsipsiaba_loadingState').hide();
-          $('#arsipsiaba_tableState').show();
-          
-          // Cukup 1 kali adjust untuk merapikan tabel saat bangun dari kondisi `display: none`
-          setTimeout(function(){ ARSIPSIABA_TABEL_INSTANCE.columns.adjust(); }, 50);
+    var txt = "*PEMBERITAHUAN PRESENSI SIABA*\nPeriode: " + bln + " " + thn + "\n\n";
+    txt += "Berikut adalah unit kerja yang *BELUM* mengirimkan dokumen presensi SIABA bulan " + bln + ":\n\n";
+    
+    ARSIPSIABA_LIST_BELUM.forEach(function(u, i) {
+        txt += (i + 1) + ". " + u + "\n";
+    });
 
-      } else {
-          // VAKSIN ANTI-GLITZ: Murni update data tanpa adjust columns berulang-ulang
-          ARSIPSIABA_TABEL_INSTANCE.clear().rows.add(dtArray).draw(false);
-          
-          // Timpa teks kosong jika benar-benar tidak ada data
-          if (dtArray.length === 0) {
-              $('.dataTables_empty').html('<div class="py-5 text-center text-muted"><i class="fas fa-folder-open fa-3x mb-3 opacity-50"></i><br>Folder arsip ini kosong.</div>');
-          }
-      }
-  }
+    txt += "\n_Mohon segera mengirimkan printout rekap Siaba beserta lampirannya ke Korwil._";
 
-  // =================================================================
-  // 4. KONTROL NAVIGASI
-  // =================================================================
-  function arsipsiaba_navigateUp() { if (ARSIPSIABA_PARENT_FOLDER) arsipsiaba_loadFolder(ARSIPSIABA_PARENT_FOLDER); }
-  function arsipsiaba_goHome() { arsipsiaba_loadFolder(null); }
-  function arsipsiaba_refreshFolder() { arsipsiaba_loadFolder(ARSIPSIABA_CURRENT_FOLDER); }
+    navigator.clipboard.writeText(txt).then(function() {
+        Sultan.notif.sukses('Daftar berhasil disalin! Silakan paste (tempel) di Grup WhatsApp.');
+    }).catch(function(err) {
+        Sultan.alert('error', 'Gagal Menyalin', 'Browser Anda tidak mengizinkan akses ke Clipboard.');
+    });
+}
 
-  // =================================================================
-  // 5. PREVIEW & DOWNLOAD MODAL (VAKSIN BAB V)
-  // =================================================================
-  function arsipsiaba_openPreview(fileId, mimeType) {
-      if (mimeType === 'application/vnd.google-apps.folder') return;
-
-      var previewUrl = "https://drive.google.com/file/d/" + fileId + "/preview";
-      var downloadUrl = "https://drive.google.com/uc?export=download&id=" + fileId;
-
-      $('#arsipsiaba_loadingPreviewPDF').removeClass('d-none');
-      $('#arsipsiaba_framePreview').addClass('d-none').attr('src', previewUrl);
-      $('#arsipsiaba_btnDownloadFinal').attr('href', downloadUrl);
-
-      $('#arsipsiaba_modalPreview').modal('show');
-
-      // VAKSIN BAB V: Event iframe Load
-      $('#arsipsiaba_framePreview').off('load').on('load', function() {
-          $('#arsipsiaba_loadingPreviewPDF').addClass('d-none');
-          $(this).removeClass('d-none');
-      });
-
-      // Fallback 2.5 Detik
-      setTimeout(function() {
-          $('#arsipsiaba_loadingPreviewPDF').addClass('d-none');
-          $('#arsipsiaba_framePreview').removeClass('d-none');
-      }, 2500);
-  }
-
-  // =================================================================
-  // 6. HELPER UTILITY: XSS PREVENTION
-  // =================================================================
-  function arsipsiaba_escapeHtml(text) { 
-      if(!text) return ""; 
-      return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
-  }
+function arsipsiaba_escapeHtml(text) { 
+    if(!text) return ""; 
+    return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
+}
 </script>
