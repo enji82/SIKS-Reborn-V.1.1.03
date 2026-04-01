@@ -365,7 +365,12 @@ $(document).ready(function() {
     $(document).off('click', '.lupa-btn-edit').on('click', '.lupa-btn-edit', function() { lupa_bukaModalEdit($(this).data('id')); });
     $(document).off('click', '.lupa-btn-hapus').on('click', '.lupa-btn-hapus', function() { lupa_bukaModalHapus($(this).data('id')); });
     $(document).off('click', '.lupa-btn-preview').on('click', '.lupa-btn-preview', function() { lupa_lihatPreviewPDF($(this).data('id')); });
-    $(document).off('click', '.lupa-btn-catatan').on('click', '.lupa-btn-catatan', function() { lupa_lihatCatatanSultan($(this).data('pesan')); });
+    
+    // VAKSIN KLIK CATATAN: Decode Base64 Data Pesan
+    $(document).off('click', '.lupa-btn-catatan').on('click', '.lupa-btn-catatan', function() { 
+        var encodedMsg = $(this).data('pesan');
+        lupa_lihatCatatanSultan(atob(encodedMsg)); 
+    });
 
     $('#lupa_modalVerif').on('hidden.bs.modal', function () { $('#lupa_verifIframe').addClass('d-none').attr('src', ''); });
     $('#lupa_modalPreviewPDF').on('hidden.bs.modal', function () { $('#lupa_iframePreviewPDF').addClass('d-none').attr('src', ''); $('#lupa_loadingPreviewPDF').removeClass('d-none'); });
@@ -445,7 +450,7 @@ function lupa_validasiAksesUser() {
 }
 
 // =================================================================
-// LOGIKA FETCH & SMART CACHE FILTER (BAB VIII)
+// LOGIKA FETCH & SMART CACHE FILTER
 // =================================================================
 function lupa_prosesCariData() {
     var th = $('#lupa_filterTahun').val(); 
@@ -669,7 +674,6 @@ function lupa_bukaModalEdit(id) {
         $('#lupa_inputNip').empty().append('<option value="' + lupa_escapeHtml(row.nip) + '">' + lupa_escapeHtml(row.nip) + '</option>').prop('disabled',true); 
     }, 200);
 
-    // VAKSIN FORMAT TANGGAL HTML5
     var rawTgl = row.tanggal ? row.tanggal.replace(/'/g, "") : "";
     var tglObj = new Date(lupa_parseDateLogic(rawTgl));
     if (!isNaN(tglObj.getTime()) && rawTgl !== "" && rawTgl !== "-") {
@@ -681,7 +685,6 @@ function lupa_bukaModalEdit(id) {
         $('#lupa_inputTanggal').val("");
     }
 
-    // VAKSIN FORMAT WAKTU
     var rawJam = row.jam ? String(row.jam).replace(/'/g, "") : "";
     rawJam = rawJam.replace('.', ':'); 
     $('#lupa_inputWaktu').val(rawJam.substring(0, 5));
@@ -727,7 +730,6 @@ function lupa_submitFormUtama(e) {
         btn.prop('disabled', false).html(txt); 
         var pesan = String(res).toLowerCase(); 
         
-        // VAKSIN UX MODAL
         if (pesan.includes('sukses') || pesan.includes('berhasil')) { 
             var $modal = formAktif.closest('.modal');
             $modal.one('hidden.bs.modal', function () {
@@ -803,7 +805,6 @@ function lupa_submitVerifikasi(e){
     google.script.run
         .withSuccessHandler(function(res){ 
             btn.prop('disabled',false).html(txt); 
-            // VAKSIN UX MODAL
             if (res === "Sukses" || String(res).includes("Sukses")) {
                 var $modal = formAktif.closest('.modal');
                 $modal.one('hidden.bs.modal', function() {
@@ -836,7 +837,6 @@ function lupa_submitHapusPermanen(e) {
     google.script.run
         .withSuccessHandler(function(r) {
             btn.prop('disabled', false).html(txt);
-            // VAKSIN UX MODAL
             if (r === "KODE_SALAH") {
                 Sultan.notif.gagal('Kode Validasi keamanan salah!');
             } else if (r === "Sukses" || String(r).includes("Sukses")) { 
@@ -903,7 +903,6 @@ function lupa_parseDateLogic(str) {
         if(d.length !== 3) return 0;
         var t = (parts[1] || "00:00:00").split(":");
         
-        // VAKSIN DETEKSI FORMAT: YYYY-MM-DD vs DD-MM-YYYY
         var y  = (d[0].length === 4) ? parseInt(d[0], 10) : parseInt(d[2], 10);
         var m  = parseInt(d[1], 10) - 1;
         var dt = (d[0].length === 4) ? parseInt(d[2], 10) : parseInt(d[0], 10);
@@ -928,6 +927,7 @@ function lupa_lihatCatatanSultan(pesan) {
     });
 }
 
+// VAKSIN: Tampilkan tombol Baca Catatan untuk SEMUA status jika ada isian ket
 function lupa_buildBadgeStatus(status, ket) { 
     var s = String(status || "").toLowerCase(); 
     var style = 'badge-sultan-light-warning'; 
@@ -940,9 +940,16 @@ function lupa_buildBadgeStatus(status, ket) {
     
     var badgeHtml = '<span class="badge badge-sultan ' + style + '"><i class="fas fa-' + icon + ' mr-1"></i>' + lupa_escapeHtml(labelStatus) + '</span>';
 
-    if (ket && ket.trim().length > 2 && (s.includes('revisi') || s.includes('tolak'))) {
-        var safeKet = lupa_escapeJs(ket);
-        var btnCatatan = '<div class="mt-2"><button type="button" class="btn btn-xs btn-outline-danger font-weight-bold shadow-sm lupa-btn-catatan" style="font-size:10px; border-radius:4px;" data-pesan="' + safeKet + '"><i class="fas fa-comment-dots mr-1"></i> Baca Catatan</button></div>';
+    if (ket && String(ket).trim().length > 2) {
+        var safeKet = btoa(lupa_escapeHtml(String(ket).trim())); // Enkripsi Base64
+        
+        // Warna tombol dinamis sesuai status
+        var btnColor = 'btn-outline-info';
+        if (s.includes('setuju') || s.includes('ok')) btnColor = 'btn-outline-success';
+        else if (s.includes('tolak')) btnColor = 'btn-outline-danger';
+        else if (s.includes('revisi')) btnColor = 'btn-outline-warning text-dark';
+
+        var btnCatatan = '<div class="mt-2"><button type="button" class="btn btn-xs ' + btnColor + ' font-weight-bold shadow-sm lupa-btn-catatan" style="font-size:10px; border-radius:4px;" data-pesan="' + safeKet + '"><i class="fas fa-comment-dots mr-1"></i> Baca Catatan</button></div>';
         return badgeHtml + btnCatatan;
     }
 

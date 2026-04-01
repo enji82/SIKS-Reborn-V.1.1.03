@@ -51,7 +51,10 @@
                 </button>
 
                 <div class="ml-auto d-none d-md-block"></div>
-                <button type="button" class="btn btn-primary font-weight-bold shadow-sm d-none">Spacer</button>
+                
+                <button type="button" id="tp_btnCopyWA" class="btn btn-success font-weight-bold shadow-sm" title="Salin Daftar ASN ke WhatsApp">
+                    <i class="fab fa-whatsapp mr-1"></i> Copy to WA
+                </button>
             </div>
         </div>
 
@@ -99,6 +102,7 @@ var TP_CACHE_DATA = [];
 var TP_CACHE_THN = "";
 var TP_CACHE_BLN = "";
 var TP_TABEL_INSTANCE = null;
+var TP_HASIL_FILTER = []; 
 
 var TP_USER_AKTIF = "";
 var TP_IS_ADMIN = false;
@@ -121,10 +125,11 @@ $(document).ready(function() {
         TP_USER_NPSN = user.npsn || user.username || ""; 
     } catch(e) { TP_USER_NPSN = ""; TP_IS_ADMIN = false; }
     
-    // VAKSINASI EVENT SPA DELEGATION (Pemusnahan onClick Inline)
     $(document).off('change', '#tp_filterTahun, #tp_filterBulan').on('change', '#tp_filterTahun, #tp_filterBulan', tp_prosesCariData);
     $(document).off('change', '#tp_filterUnit').on('change', '#tp_filterUnit', tp_terapkanFilterLokal);
     $(document).off('click', '#tp_btnRefresh').on('click', '#tp_btnRefresh', tp_tarikDataServer);
+    
+    $(document).off('click', '#tp_btnCopyWA').on('click', '#tp_btnCopyWA', tp_salinDataKeWA);
 
     tp_initFilters();
 });
@@ -139,10 +144,10 @@ function tp_initFilters() {
         var data = JSON.parse(res);
         
         var elThn = $('#tp_filterTahun').empty().append('<option value="">- Tahun -</option>');
-        if(data.years) data.years.forEach(y => elThn.append(`<option value="${tp_escapeHtml(y)}">${tp_escapeHtml(y)}</option>`));
+        if(data.years) data.years.forEach(function(y) { elThn.append('<option value="' + tp_escapeHtml(y) + '">' + tp_escapeHtml(y) + '</option>'); });
         
         var elBln = $('#tp_filterBulan').empty().append('<option value="">- Bulan -</option>');
-        if(data.months) data.months.forEach(m => elBln.append(`<option value="${tp_escapeHtml(m)}">${tp_escapeHtml(m)}</option>`));
+        if(data.months) data.months.forEach(function(m) { elBln.append('<option value="' + tp_escapeHtml(m) + '">' + tp_escapeHtml(m) + '</option>'); });
 
         var now = new Date();
         var curYear = now.getFullYear().toString();
@@ -177,18 +182,18 @@ function tp_validasiAksesUser() {
                 var dataUnit = JSON.parse(resUnit);
                 if (dataUnit.error) {
                     $('#tp_filterUnit').empty().append('<option value="">AKSES DITOLAK</option>');
-                    $('#tp_loadingText').html(`<span class="text-danger"><i class="fas fa-exclamation-triangle mb-2"></i><br>${tp_escapeHtml(dataUnit.error)}</span>`);
+                    $('#tp_loadingText').html('<span class="text-danger"><i class="fas fa-exclamation-triangle mb-2"></i><br>' + tp_escapeHtml(dataUnit.error) + '</span>');
                     return;
                 }
 
                 TP_UNIT_TERKUNCI = dataUnit.unitKerja;
-                $('#tp_filterUnit').empty().append($('<option>', {value: TP_UNIT_TERKUNCI, text: TP_UNIT_TERKUNCI})).prop('disabled', true);
+                $('#tp_filterUnit').empty().append('<option value="' + TP_UNIT_TERKUNCI + '">' + TP_UNIT_TERKUNCI + '</option>').prop('disabled', true);
                 
                 tp_tarikDataServer();
             })
             .withFailureHandler(function(err) {
                 $('#tp_filterUnit').empty().append('<option value="">ERROR SERVER</option>');
-                $('#tp_loadingText').html(`<span class="text-danger"><i class="fas fa-wifi mb-2"></i><br>Koneksi Database Induk Terputus: ${tp_escapeHtml(err.message)}</span>`);
+                $('#tp_loadingText').html('<span class="text-danger"><i class="fas fa-wifi mb-2"></i><br>Koneksi Database Induk Terputus: ' + tp_escapeHtml(err.message) + '</span>');
             })
             .getUnitKerjaByNPSN(TP_USER_NPSN); 
     }
@@ -240,7 +245,7 @@ function tp_tarikDataServer() {
             if (data && data.error) {
                 $('#tp_tableState').hide();
                 $('#tp_loadingState').show();
-                $('#tp_loadingText').html(`<span class="text-danger"><i class="fas fa-exclamation-triangle mb-2"></i><br>${tp_escapeHtml(data.error)}</span>`);
+                $('#tp_loadingText').html('<span class="text-danger"><i class="fas fa-exclamation-triangle mb-2"></i><br>' + tp_escapeHtml(data.error) + '</span>');
                 return;
             }
             
@@ -263,7 +268,7 @@ function tp_tarikDataServer() {
             btn.prop('disabled', false).html('<i class="fas fa-search text-maroon"></i>');
             $('#tp_tableState').hide();
             $('#tp_loadingState').show();
-            $('#tp_loadingText').html(`<span class="text-danger"><i class="fas fa-wifi mb-2"></i><br>Koneksi Terputus: ${tp_escapeHtml(err.message)}</span>`);
+            $('#tp_loadingText').html('<span class="text-danger"><i class="fas fa-wifi mb-2"></i><br>Koneksi Terputus: ' + tp_escapeHtml(err.message) + '</span>');
         })
         .getSiabaTidakData(th, bl, "SEMUA"); 
 }
@@ -281,7 +286,7 @@ function tp_populateDropdownUnit() {
     var currentVal = select.val();
     
     select.empty().append('<option value="SEMUA">- Semua Unit Kerja -</option>');
-    sortedUnits.forEach(function(u) { select.append(`<option value="${tp_escapeHtml(u)}">${tp_escapeHtml(u)}</option>`); });
+    sortedUnits.forEach(function(u) { select.append('<option value="' + tp_escapeHtml(u) + '">' + tp_escapeHtml(u) + '</option>'); });
     
     select.prop('disabled', false).removeClass('bg-light text-maroon font-weight-bold');
     if(currentVal && unique.has(currentVal)) { select.val(currentVal); }
@@ -305,6 +310,7 @@ function tp_terapkanFilterLokal() {
         }
     });
 
+    TP_HASIL_FILTER = hasil; 
     tp_renderTabel(hasil);
 }
 
@@ -314,48 +320,38 @@ function tp_renderTabel(dataRows) {
     dataRows.forEach(function(row) {
         var arrRow = [];
         
-        // Kolom 1 (Index 0): Gabungan Nama & NIP (Anti-XSS & BAB IX)
         var safeNama = tp_escapeHtml(row[0]);
         var safeNip  = tp_escapeHtml(row[1]);
         var safeUnit = tp_escapeHtml(row[row.length - 1] || '-');
         
-        var txtUnitHtml = TP_IS_ADMIN ? `<div class="small text-danger font-weight-bold mt-1">${safeUnit}</div>` : '';
-        arrRow.push(`<div class="font-weight-bold text-dark text-nowrap text-left">${safeNama}</div><div class="small text-muted text-left text-nowrap">${safeNip}</div>${txtUnitHtml}`);
+        var txtUnitHtml = TP_IS_ADMIN ? '<div class="small text-danger font-weight-bold mt-1">' + safeUnit + '</div>' : '';
+        arrRow.push('<div class="font-weight-bold text-dark text-nowrap text-left">' + safeNama + '</div><div class="small text-muted text-left text-nowrap">' + safeNip + '</div>' + txtUnitHtml);
         
-        // Kolom 2: Jumlah LA
-        arrRow.push(row[2] == 0 || row[2] === "" ? "-" : `<span class="badge badge-danger px-2 py-1">${tp_escapeHtml(row[2])}</span>`);
-        
-        // Kolom 3: LAD (Telah divaksin menjadi text-danger)
-        arrRow.push(row[3] == 0 || row[3] === "" ? "-" : `<span class="font-weight-bold text-danger">${tp_escapeHtml(row[3])}</span>`);
-        
-        // Kolom 4: LAP (Telah divaksin menjadi text-danger)
-        arrRow.push(row[4] == 0 || row[4] === "" ? "-" : `<span class="font-weight-bold text-danger">${tp_escapeHtml(row[4])}</span>`);
-        
-        // Kolom 5: Tanggal LA
-        arrRow.push(row[5] === "" || row[5] === "-" ? "-" : `<span class="text-dark" style="white-space:normal;">${tp_escapeHtml(row[5])}</span>`);
+        arrRow.push(row[2] == 0 || row[2] === "" ? "-" : '<span class="badge badge-danger px-2 py-1">' + tp_escapeHtml(row[2]) + '</span>');
+        arrRow.push(row[3] == 0 || row[3] === "" ? "-" : '<span class="font-weight-bold text-danger">' + tp_escapeHtml(row[3]) + '</span>');
+        arrRow.push(row[4] == 0 || row[4] === "" ? "-" : '<span class="font-weight-bold text-danger">' + tp_escapeHtml(row[4]) + '</span>');
+        arrRow.push(row[5] === "" || row[5] === "-" ? "-" : '<span class="text-dark" style="white-space:normal;">' + tp_escapeHtml(row[5]) + '</span>');
 
         dtArray.push(arrRow);
     });
 
-    // JIKA DATATABLES BELUM PERNAH DIBUAT (BAB VII)
     if (!$.fn.DataTable.isDataTable('#tp_tabelUtama')) {
         TP_TABEL_INSTANCE = $('#tp_tabelUtama').DataTable({
             "data": dtArray, 
             "destroy": true, "ordering": false, "pageLength": 10, "autoWidth": false,
-            "deferRender": true, // Performa Turbo
+            "deferRender": true, 
             "dom": "<'row mb-2'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                    "<'row'<'col-sm-12'<'table-responsive sultan-scroll'tr>>>" +
                    "<'row mt-3'<'col-sm-12 col-md-5 small text-muted'i><'col-sm-12 col-md-7'p>>",
             "language": { 
                 "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Indonesian.json", 
                 "search": "", "searchPlaceholder": "Cari Nama...",
-                "emptyTable": '<div class="py-5 text-center text-muted"><div class="mb-3"><i class="fas fa-clipboard-list fa-3x text-gray-300" style="opacity: 0.6;"></i></div><h6 class="font-weight-bold text-dark mb-1">Tidak Ada Data</h6><p class="small mb-0">Tidak ditemukan rekap data alpha/lupa untuk unit ini.</p></div>' 
+                "emptyTable": '<div class="py-5 text-center text-muted"><div class="mb-3"><i class="fas fa-clipboard-list fa-3x text-gray-300" style="opacity: 0.6;"></i></div><h6 class="font-weight-bold text-dark mb-1">Tidak Ada Data</h6><p class="small mb-0">Tidak ditemukan rekap data alpha/lupa untuk filter ini.</p></div>' 
             },
             "columnDefs": [
                 { "targets": 0, "width": "auto", "className": "col-sticky-left border-right text-left px-3 align-middle bg-white" },
                 { "targets": [1,2,3,4], "className": "text-center align-middle px-2 py-2" }
             ],
-            // Pasang z-index untuk col-sticky
             "createdRow": function(row, data, dataIndex) {
                  var cell = row.childNodes[0];
                  cell.style.position = 'sticky';
@@ -365,12 +361,10 @@ function tp_renderTabel(dataRows) {
             }
         });
 
-        // BUKA RUANG B SEKALI SAJA INSTAN (Tanpa fadeIn)
         $('#tp_loadingState').hide();
         $('#tp_tableState').show();
         TP_TABEL_INSTANCE.columns.adjust();
     } 
-    // JIKA TABEL SUDAH ADA (Refresh / Filter)
     else {
         TP_TABEL_INSTANCE.clear().rows.add(dtArray).draw(false);
         
@@ -383,7 +377,61 @@ function tp_renderTabel(dataRows) {
 }
 
 // =================================================================
-// 5. HELPER UTILITIES: PEMBERSIH XSS (Hukum Ke-5)
+// 5. FITUR COPY TO WA (ALGORITMA GROUPING + DETAIL)
+// =================================================================
+function tp_salinDataKeWA() {
+    if (TP_HASIL_FILTER.length === 0) {
+        Sultan.alert('warning', 'Tabel Kosong', 'Tidak ada data ASN yang bisa disalin.');
+        return;
+    }
+
+    var bln = $('#tp_filterBulan').val();
+    var thn = $('#tp_filterTahun').val();
+    var fUnit = $('#tp_filterUnit').val();
+
+    var txt = "*DAFTAR ASN BELUM PRESENSI SIABA BULAN " + String(bln).toUpperCase() + " " + thn + "*\n";
+
+    // Fungsi perakit string Guru + Detail
+    function formatBarisGuru(row) {
+        var nama = String(row[0]).trim();
+        var jumlah = String(row[2] || "-").trim();
+        var tanggal = String(row[5] || "-").trim();
+        return "- " + nama + ", Jumlah: " + jumlah + ", Tanggal: " + tanggal + "\n";
+    }
+
+    if (fUnit !== "SEMUA" && fUnit !== "") {
+        txt += String(fUnit).toUpperCase() + "\n";
+        TP_HASIL_FILTER.forEach(function(row) {
+            txt += formatBarisGuru(row);
+        });
+    } else {
+        var dataGroup = {};
+        
+        TP_HASIL_FILTER.forEach(function(row) {
+            var unit = String(row[row.length - 1]).trim().toUpperCase();
+            if (!dataGroup[unit]) { dataGroup[unit] = []; }
+            dataGroup[unit].push(formatBarisGuru(row));
+        });
+
+        Object.keys(dataGroup).sort().forEach(function(unitKey) {
+            txt += unitKey + "\n";
+            dataGroup[unitKey].forEach(function(strBaris) {
+                txt += strBaris;
+            });
+        });
+    }
+
+    txt += "\n_Mohon segera melengkapi presensi agar bisa dicetak rekap Siaba._";
+
+    navigator.clipboard.writeText(txt).then(function() {
+        Sultan.notif.sukses('Daftar berhasil disalin! Silakan paste (tempel) di Grup WhatsApp.');
+    }).catch(function(err) {
+        Sultan.alert('error', 'Gagal Menyalin', 'Browser Anda tidak mengizinkan akses ke Clipboard.');
+    });
+}
+
+// =================================================================
+// 6. HELPER UTILITIES: PEMBERSIH XSS
 // =================================================================
 function tp_escapeHtml(text) { 
     if(!text) return ""; 
