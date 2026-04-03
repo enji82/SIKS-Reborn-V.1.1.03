@@ -164,26 +164,67 @@ function perbaikiEfileData(payload, fileData) {
 
 function getEfileViewerData(keyword, npsnFilter) {
   try {
-    var ss = SpreadsheetApp.openById(EFILE_DB_ID); var searchKey = String(keyword).trim().toLowerCase();
-    var shPtk = ss.getSheetByName("Database_PTK"); var dataPtk = shPtk.getDataRange().getDisplayValues(); var ptkFound = null;
-    for(var i=1; i<dataPtk.length; i++) {
-        var rNpsn = String(dataPtk[i][4]).trim().toUpperCase(); var rUnit = String(dataPtk[i][5]).trim().toUpperCase(); var rId = String(dataPtk[i][0]).toLowerCase(); var rNama = String(dataPtk[i][1]).toLowerCase();
-        if(npsnFilter && npsnFilter !== "SEMUA" && npsnFilter !== "" && rNpsn !== npsnFilter && rUnit !== npsnFilter) continue;
-        if(rId === searchKey || rNama.includes(searchKey)) { ptkFound = { id_ptk: dataPtk[i][0], nama: dataPtk[i][1], nip: dataPtk[i][3], npsn: dataPtk[i][4], unit: dataPtk[i][5] }; break; }
+    var ss = SpreadsheetApp.openById(EFILE_DB_ID); 
+    var searchKey = String(keyword).trim().toLowerCase();
+    
+    // VAKSIN ANTI CASE-SENSITIVE: Bersihkan dan besarkan huruf dari frontend
+    var cleanFilter = String(npsnFilter || "").trim().toUpperCase();
+
+    var shPtk = ss.getSheetByName("Database_PTK"); 
+    var dataPtk = shPtk.getDataRange().getDisplayValues(); 
+    var ptkFound = null;
+
+    for(var i = 1; i < dataPtk.length; i++) {
+        var rNpsn = String(dataPtk[i][4]).trim().toUpperCase(); 
+        var rUnit = String(dataPtk[i][5]).trim().toUpperCase(); 
+        var rId   = String(dataPtk[i][0]).toLowerCase(); 
+        var rNama = String(dataPtk[i][1]).toLowerCase();
+        
+        // Cek Keamanan Akses menggunakan cleanFilter
+        if(cleanFilter && cleanFilter !== "SEMUA" && cleanFilter !== "" && rNpsn !== cleanFilter && rUnit !== cleanFilter) continue;
+        
+        // Pencarian Nama / ID
+        if(rId === searchKey || rNama.includes(searchKey)) { 
+            ptkFound = { 
+                id_ptk: dataPtk[i][0], 
+                nama: dataPtk[i][1], 
+                nip: dataPtk[i][3], 
+                npsn: dataPtk[i][4], 
+                unit: dataPtk[i][5] 
+            }; 
+            break; 
+        }
     }
-    if(!ptkFound) return JSON.stringify({ success: false, message: "PTK tidak ditemukan." });
 
-    var shKat = ss.getSheetByName("Master_Kategori_Efile"); var dataKat = shKat.getDataRange().getDisplayValues(); var categories = [];
-    for(var k=1; k<dataKat.length; k++) { if(String(dataKat[k][0]).trim() !== "") categories.push({ idKat: dataKat[k][0], namaKat: dataKat[k][1], parent: dataKat[k][2] }); }
+    if(!ptkFound) return JSON.stringify({ success: false, message: "PTK tidak ditemukan atau Anda tidak memiliki akses ke data tersebut." });
 
-    var shFile = ss.getSheetByName("Database_Efile"); var dataFile = shFile.getDataRange().getDisplayValues(); var files = [];
-    for(var f=1; f<dataFile.length; f++) {
+    var shKat = ss.getSheetByName("Master_Kategori_Efile"); 
+    var dataKat = shKat.getDataRange().getDisplayValues(); 
+    var categories = [];
+    for(var k = 1; k < dataKat.length; k++) { 
+        if(String(dataKat[k][0]).trim() !== "") {
+            categories.push({ idKat: dataKat[k][0], namaKat: dataKat[k][1], parent: dataKat[k][2] }); 
+        }
+    }
+
+    var shFile = ss.getSheetByName("Database_Efile"); 
+    var dataFile = shFile.getDataRange().getDisplayValues(); 
+    var files = [];
+    for(var f = 1; f < dataFile.length; f++) {
         var st = String(dataFile[f][7]).toLowerCase();
-        if(String(dataFile[f][0]) === ptkFound.id_ptk && (st.includes('setuju') || st.includes('ok'))) { files.push({ id_kategori: dataFile[f][2], tahun: dataFile[f][4], file_name: dataFile[f][5], url: dataFile[f][6] }); }
+        // Hanya tampilkan file yang Disetujui/Ok
+        if(String(dataFile[f][0]) === ptkFound.id_ptk && (st.includes('setuju') || st.includes('ok'))) { 
+            files.push({ id_kategori: dataFile[f][2], tahun: dataFile[f][4], file_name: dataFile[f][5], url: dataFile[f][6] }); 
+        }
     }
+    
+    // Urutkan file dari tahun terbaru ke terlama
     files.sort(function(a,b){ return parseInt(b.tahun||0) - parseInt(a.tahun||0); });
+
     return JSON.stringify({ success: true, ptk: ptkFound, categories: categories, files: files });
-  } catch(e) { return JSON.stringify({ success: false, message: e.message }); }
+  } catch(e) { 
+    return JSON.stringify({ success: false, message: e.message }); 
+  }
 }
 
 // ======================================================================
