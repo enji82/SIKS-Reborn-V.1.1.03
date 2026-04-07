@@ -87,7 +87,7 @@
                 <table id="ptksdn_tabelUtama" class="table table-bordered table-hover table-premium table-sultan-compact w-100 text-nowrap">
                    <thead class="bg-light">
                       <tr>
-                         <th class="col-sticky-left bg-white border-right align-middle text-center" style="min-width: 170px; z-index: 5;">Aksi</th>
+                         <th class="col-sticky-left bg-white border-right align-middle text-center px-2" style="width: 1%; white-space: nowrap; z-index: 5;">Aksi</th>
                          <th class="text-left align-middle" style="min-width: 250px;">Nama ASN</th>
                          <th class="text-left align-middle">Tempat, Tgl Lahir</th>
                          <th class="text-left align-middle">NIK</th>
@@ -200,9 +200,13 @@
                             </div>
 
                             <div class="form-row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label-sultan small font-weight-bold text-muted text-uppercase">Alamat Lengkap <span class="text-danger">*</span></label>
-                                    <textarea name="alamat" class="form-control form-control-sultan" rows="2" placeholder="Jalan, RT/RW, Desa, Kecamatan..." style="resize:none;" required></textarea>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label-sultan small font-weight-bold text-muted text-uppercase">Alamat KTP <span class="text-danger">*</span></label>
+                                    <textarea name="alamat_ktp" class="form-control form-control-sultan" rows="2" placeholder="Sesuai kartu identitas KTP..." style="resize:none;" required></textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label-sultan small font-weight-bold text-muted text-uppercase">Alamat Domisili <span class="text-danger">*</span></label>
+                                    <textarea name="alamat_domisili" class="form-control form-control-sultan" rows="2" placeholder="Tempat tinggal saat ini..." style="resize:none;" required></textarea>
                                 </div>
                             </div>
 
@@ -418,31 +422,35 @@ $(document).ready(function() {
     ptksdn_loadReferensiDropdowns(); 
     ptksdn_validasiAksesUser(); 
 
-    // VAKSIN DELEGASI EVENT JQUERY (Pengganti onchange/onclick HTML)
-    $(document).on('click', '#ptksdn_btnSync', ptksdn_tarikDataServer);
-    $(document).on('click', '#ptksdn_btnTambah', ptksdn_bukaModalTambah);
+    // VAKSIN DELEGASI EVENT JQUERY (ANTI MEMORY LEAK MULTI-MODAL)
+    // Penggunaan .off() wajib dilakukan agar listener tidak bertumpuk
+    $(document).off('click', '#ptksdn_btnSync').on('click', '#ptksdn_btnSync', ptksdn_tarikDataServer);
+    $(document).off('click', '#ptksdn_btnTambah').on('click', '#ptksdn_btnTambah', ptksdn_bukaModalTambah);
     
-    $(document).on('change', '#ptksdn_filterUnit, #ptksdn_filterStatus, #ptksdn_filterJabatan, #ptksdn_filterTugas', ptksdn_terapkanFilterLokal);
+    $(document).off('change', '#ptksdn_filterUnit, #ptksdn_filterStatus, #ptksdn_filterJabatan, #ptksdn_filterTugas')
+               .on('change', '#ptksdn_filterUnit, #ptksdn_filterStatus, #ptksdn_filterJabatan, #ptksdn_filterTugas', ptksdn_terapkanFilterLokal);
     
-    $(document).on('change', '#ptksdn_selStatusPeg', function() { 
+    $(document).off('change', '#ptksdn_selStatusPeg').on('change', '#ptksdn_selStatusPeg', function() { 
         ptksdn_togglePangkatFields(); 
         ptksdn_toggleJabatanTugas(); 
     });
-    $(document).on('change', '#ptksdn_selPendidikan', ptksdn_toggleJurusanField);
     
-    $(document).on('input', '#ptksdn_inputNama', function() { this.value = this.value.toUpperCase(); });
-    $(document).on('input', '#ptksdn_inputNik', function() { 
-    var cursorPosition = this.selectionStart;
-    var originalValue = this.value;
-    var newValue = originalValue.replace(/[^0-9]/g, '');
-    if (originalValue !== newValue) {
-        this.value = newValue;
-        this.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
-    }
-});
+    $(document).off('change', '#ptksdn_selPendidikan').on('change', '#ptksdn_selPendidikan', ptksdn_toggleJurusanField);
+    
+    $(document).off('input', '#ptksdn_inputNama').on('input', '#ptksdn_inputNama', function() { this.value = this.value.toUpperCase(); });
+    
+    $(document).off('input', '#ptksdn_inputNik').on('input', '#ptksdn_inputNik', function() { 
+        var cursorPosition = this.selectionStart;
+        var originalValue = this.value;
+        var newValue = originalValue.replace(/[^0-9]/g, '');
+        if (originalValue !== newValue) {
+            this.value = newValue;
+            this.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+        }
+    });
 
-    $(document).on('submit', '#ptksdn_formUtama', ptksdn_submitFormUtama);
-    $(document).on('submit', '#ptksdn_formHapus', ptksdn_submitHapusPermanen);
+    $(document).off('submit', '#ptksdn_formUtama').on('submit', '#ptksdn_formUtama', ptksdn_submitFormUtama);
+    $(document).off('submit', '#ptksdn_formHapus').on('submit', '#ptksdn_formHapus', ptksdn_submitHapusPermanen);
 });
 
 // =================================================================
@@ -470,7 +478,8 @@ function ptksdn_initDataTables(isEmpty = false) {
                "<'row'<'col-sm-12'<'table-responsive sultan-scroll'tr>>>" +
                "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
         "columnDefs": [ 
-            { "targets": 0, "className": "col-sticky-left bg-white align-middle border-right text-center" }, 
+            // VAKSIN LEBAR: Kolom aksi dipaksa sekecil mungkin agar pas dengan konten
+            { "targets": 0, "className": "col-sticky-left bg-white align-middle border-right text-center px-2", "width": "1%", "orderable": false }, 
             { "targets": 9, "className": "text-center align-middle" }, 
             { "targets": [1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17], "className": "text-left align-middle" } 
         ],
@@ -638,16 +647,18 @@ function ptksdn_renderTabel(data) {
         var jab = (row.jabatan || '-'); if(row.tmt_jabatan) jab += '<br><small class="text-muted">TMT: ' + ptksdn_formatTanggalIndo(row.tmt_jabatan) + '</small>';
         var pang = (row.pangkat || '-'); if(row.tmt_gol) pang += '<br><small class="text-muted">TMT: ' + ptksdn_formatTanggalIndo(row.tmt_gol) + '</small>';
 
-        // BAB III: Tombol Aksi Mutlak (Teks lengkap + Icon)
-        var titleEdit = PTKSDN_IS_ADMIN ? "Edit / Mutasi" : "Edit Data";
-        var btnEdit = '<button type="button" class="btn btn-sm btn-warning text-dark font-weight-bold shadow-sm" onclick="ptksdn_bukaModalEdit(\'' + row.id + '\')" title="' + titleEdit + '"><i class="fas fa-pencil-alt mr-1"></i> Edit</button>';
+        // BAB III: Tombol Aksi Mutlak (Ikon Saja untuk Admin)
+        var btnEdit = '';
+        var btnHapus = '';
         
-        var btnHapus = "";
         if (PTKSDN_IS_ADMIN) {
-            btnHapus = '<button type="button" class="btn btn-sm btn-danger font-weight-bold shadow-sm" onclick="ptksdn_bukaModalHapus(\'' + row.id + '\', \'' + ptksdn_escapeJs(row.nama_lengkap) + '\')" title="Pindah ke Arsip Non-Aktif"><i class="fas fa-archive mr-1"></i> Arsipkan</button>';
+            btnEdit = '<button type="button" class="btn btn-sm btn-warning text-dark font-weight-bold shadow-sm" onclick="ptksdn_bukaModalEdit(\'' + row.id + '\')" title="Edit / Mutasi"><i class="fas fa-pencil-alt"></i></button>';
+            btnHapus = '<button type="button" class="btn btn-sm btn-danger font-weight-bold shadow-sm" onclick="ptksdn_bukaModalHapus(\'' + row.id + '\', \'' + ptksdn_escapeJs(row.nama_lengkap) + '\')" title="Pindah ke Arsip Non-Aktif"><i class="fas fa-archive"></i></button>';
+        } else {
+            btnEdit = '<button type="button" class="btn btn-sm btn-warning text-dark font-weight-bold shadow-sm" onclick="ptksdn_bukaModalEdit(\'' + row.id + '\')" title="Edit Data"><i class="fas fa-pencil-alt mr-1"></i> Edit</button>';
         }
         
-        var btnAksi = '<div class="d-flex flex-wrap justify-content-center" style="gap:5px;">' + btnEdit + ' ' + btnHapus + '</div>';
+        var btnAksi = '<div class="d-flex flex-nowrap justify-content-center" style="gap:5px;">' + btnEdit + ' ' + btnHapus + '</div>';
 
         var uiNama = '<div class="font-weight-bold text-dark text-nowrap">' + ptksdn_escapeHtml(row.nama_lengkap) + '</div><div class="small text-muted text-nowrap">' + (ptksdn_escapeHtml(row.nip) || '-') + '</div>';
         if(PTKSDN_IS_ADMIN) uiNama += '<div class="small text-danger font-weight-bold mt-1">' + (ptksdn_escapeHtml(row.unit) || '-') + '</div>';
@@ -808,7 +819,8 @@ function ptksdn_bukaModalEdit(id) {
     $('[name="tgl_lahir"]').val(row.tgl_lahir); 
     $('[name="lp"]').val(row.lp);
     $('[name="agama"]').val(row.agama);
-    $('[name="alamat"]').val(row.alamat);
+    $('[name="alamat_ktp"]').val(row.alamat_ktp);
+    $('[name="alamat_domisili"]').val(row.alamat_domisili);
     $('[name="pendidikan"]').val(row.pendidikan);
     $('[name="jurusan"]').val(row.jurusan);
     $('[name="thn_lulus"]').val(row.thn_lulus);
